@@ -114,7 +114,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     })
 
-    const modalTimerId = setTimeout(openModal, 5000);
+    // const modalTimerId = setTimeout(openModal, 5000);
 
     function showModalByScroll() {
         if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight - 1) {
@@ -125,4 +125,67 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     window.addEventListener('scroll', showModalByScroll);
+
+
+    // class for cards 
+    class MenuCard {
+        constructor(src, alt, title, descr, price, parentSelector) {
+            this.src = src;
+            this.alt = alt;
+            this.title = title;
+            this.descr = descr;
+            this.price = price;
+            this.transfer = 27;
+            this.parent = document.querySelector(parentSelector);
+        }
+
+        changeToUAH() {
+            this.price = this.price * this.transfer;
+        }
+
+        render() {
+            const element = document.createElement('div');
+            element.innerHTML = `
+                    <div class="menu__item">
+                    <img src=${this.src} alt=${this.alt}>
+                    <h3 class="menu__item-subtitle">${this.title}"</h3>
+                    <div class="menu__item-descr">${this.descr}</div>
+                    <div class="menu__item-divider"></div>
+                    <div class="menu__item-price">
+                        <div class="menu__item-cost">Цена:</div>
+                        <div class="menu__item-total"><span>${this.price}</span> грн/день</div>
+                    </div>
+                </div>`;
+            this.parent.append(element);
+        }
+    }
+
+    new MenuCard(
+        "img/tabs/vegy.jpg",
+        "vegy",
+        'Menu "Fitnes"',
+        'Menu "Fitnes" - is the new way to cook dishes!',
+        9,
+        ".menu .container"
+    ).render();
+
+    new MenuCard(
+        "img/tabs/post.jpg",
+        "post",
+        'Menu "Simple"',
+        'Menu Simple - its a deep way to cook dishes: complete absence of products of animal origin, milk from almonds, oats, coconut or buckwheat, the right amount of proteins due to tofu and imported vegetarian steaks.',
+        14,
+        ".menu .container"
+    ).render();
+
+    new MenuCard(
+        "img/tabs/elite.jpg",
+        "elite",
+        'Menu Premium',
+        'In the "Premium" menu, we use not only beautiful packaging design, but also high-quality execution of dishes. Red fish, seafood, fruits - restaurant menu without going to the restaurant!',
+        21,
+        ".menu .container"
+    ).render();
+
+
 });
