@@ -158,34 +158,31 @@ window.addEventListener('DOMContentLoaded', () => {
             this.parent.append(element);
         }
     }
+    const getResource = async (url) => {
+        const res = await fetch(url);
 
-    new MenuCard(
-        "img/tabs/vegy.jpg",
-        "vegy",
-        'Menu "Fitnes"',
-        'Menu "Fitnes" - is the new way to cook dishes!',
-        9,
-        ".menu .container"
-    ).render();
+        if (!res.ok) {
+            throw new Error(`Could not fetch  ${url}, status: ${res.status}`);
+        }
 
-    new MenuCard(
-        "img/tabs/post.jpg",
-        "post",
-        'Menu "Simple"',
-        'Menu Simple - its a deep way to cook dishes: complete absence of products of animal origin, milk from almonds, oats, coconut or buckwheat, the right amount of proteins due to tofu and imported vegetarian steaks.',
-        14,
-        ".menu .container"
-    ).render();
+        return await res.json();
+    }
 
-    new MenuCard(
-        "img/tabs/elite.jpg",
-        "elite",
-        'Menu Premium',
-        'In the "Premium" menu, we use not only beautiful packaging design, but also high-quality execution of dishes. Red fish, seafood, fruits - restaurant menu without going to the restaurant!',
-        21,
-        ".menu .container"
-    ).render();
+    getResource('http://localhost:3000/menu')
+        .then(data => {
+            data.forEach(({ img, altimg, title, descr, price }) => {
+                new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+            });
+        });
 
+        //axios example 
+
+    // axios.get('http://localhost:3000/menu')
+    //     .then(data =>{
+    //         data.data.forEach(({ img, altimg, title, descr, price }) => {
+    //             new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+    //         });
+    //     });
 
     //forms 
     const forms = document.querySelectorAll('form');
@@ -197,10 +194,22 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     forms.forEach(item => {
-        postData(item);
-    })
+        bindPostData(item);
+    });
 
-    function postData(form) {
+    const postData = async (url, data) => {
+        const res = await fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: data
+        });
+
+        return await res.json();
+    }
+
+    function bindPostData(form) {
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -213,29 +222,29 @@ window.addEventListener('DOMContentLoaded', () => {
             `;
             form.insertAdjacentElement('afterend', statusMessage);
 
-            const request = new XMLHttpRequest();
-            request.open('POST', 'server.php');
-            request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-            const obj = {};
             const formData = new FormData(form);
-            formData.forEach(function (key, value) {
-                obj[key] = value;
-            })
-            const readyObject = JSON.stringify(obj);
-            request.send(readyObject);
 
-            request.addEventListener('load', () => {
-                if (request.status === 200) {
-                    console.log(request.response);
+            // const request = new XMLHttpRequest();
+            // request.open('POST', 'server.php');
+
+            // const obj = {};
+            // formData.forEach(function (key, value) {
+            //     obj[value] = key;
+            // })
+
+            postData('http://localhost:3000/requests', JSON.stringify(Object.fromEntries(formData.entries())))
+                .then(data => {
+                    console.log(data);
                     showThnaksModal(message.success);
-                    form.reset();
-                    setTimeout(() => {
-                        statusMessage.remove();
-                    }, 2000);
-                } else {
+                    statusMessage.remove();
+                })
+                .catch(() => {
                     showThnaksModal(message.failure);
-                }
-            })
+
+                })
+                .finally(() => {
+                    form.reset();
+                })
 
         })
     }
